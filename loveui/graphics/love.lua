@@ -52,12 +52,16 @@ function arc(mode, left, top, angle, radius, width, length)
       x, y = x-outer, y-outer
       local a = math.atan2(y, x)
       if a > angle and a <= angle+length then
-        if x*x + y*y > inner^2 and x*x + y*y <= outer^2  then
+        local dist = x*x + y*y
+        if dist > inner^2 and dist <= outer^2  then
+          -- Completely filled.
           return 255, 255, 255, 255
-        elseif x*x + y*y > outer^2 and x*x + y*y <= (outer+1)^2 then
-          return 255, 255, 255, (1-(math.sqrt(x*x + y*y)-outer))*255
-        elseif x*x + y*y >= (inner-1)^2 and x*x + y*y < inner^2 then
-          return 255, 255, 255, (math.sqrt(x*x + y*y)-inner)*255
+        elseif dist > outer^2 and dist <= (outer+1)^2 then
+          -- Outer border anti-aliasing.
+          return 255, 255, 255, (1-(math.sqrt(dist)-outer))*255
+        elseif dist >= (inner-1)^2 and dist < inner^2 then
+          -- Inner border anti-aliasing.
+          return 255, 255, 255, (math.sqrt(dist)-inner)*255
         end
       end
       return 0, 0, 0, 0

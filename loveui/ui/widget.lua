@@ -275,11 +275,11 @@ function widget:compute()
     constrain("bordertopleftradius", min + 
       math.min(this.borderleftwidth, this.bordertopwidth))
     constrain("bordertoprightradius", min + 
-      math.min(this.borderrightwidth, this.bordertopwidth))
+      math.min(this.borderleftwidth, this.bordertopwidth))
     constrain("borderbottomleftradius", min + 
       math.min(this.borderleftwidth, this.borderbottomwidth))
     constrain("borderbottomrightradius", min + 
-      math.min(this.borderrightwidth, this.borderbottomwidth))
+      math.min(this.borderleftwidth, this.borderbottomwidth))
   end
   -- Compute style for sub-widgets.
   for i, v in ipairs(self.content) do
@@ -579,12 +579,17 @@ function widget:drawborder(st, left, top, width, height)
       outerleft, innertop + height)
     -- corner
     if radius > 0 then
-      local dx, dy = innerleft - tmidleft, innertop- lmidtop
+      local dx, dy = innerleft - tmidleft, 
+        math.max(innertop, lmidtop)- lmidtop
+      local length = math.atan2(dy, dx)
+      if dx == 0 or dy == 0 then 
+        length = math.pi/4 
+      end
       arc("fill",
         radius, radius, 
         math.pi, radius, 
         math.min(width1, radius), 
-        math.atan2(dy,dx))
+        length)
     end
   end
   -- Draws a border
@@ -614,6 +619,18 @@ function widget:drawborder(st, left, top, width, height)
       height)
     pop()
   end
+  if this.bordertopwidth > 0 then
+    color(unpack(this.bordertopcolor))
+    push()
+    translate(left + this.borderrightwidth + width, 
+      top - this.bordertopwidth)
+    rotate(math.pi/2)
+    border(this.bordertopwidth,
+      this.borderrightwidth, this.bordertoprightradius, 
+      this.borderleftwidth, this.bordertopleftradius, 
+      width)
+    pop()
+  end
   if this.borderbottomwidth > 0 then
     color(unpack(this.borderbottomcolor))
     push()
@@ -637,18 +654,6 @@ function widget:drawborder(st, left, top, width, height)
       this.bordertopwidth, this.bordertopleftradius, 
       this.borderbottomwidth, this.borderbottomleftradius, 
       height)
-    pop()
-  end
-  if this.bordertopwidth > 0 then
-    color(unpack(this.bordertopcolor))
-    push()
-    translate(left + this.borderrightwidth + width, 
-      top - this.bordertopwidth)
-    rotate(math.pi/2)
-    border(this.bordertopwidth,
-      this.borderrightwidth, this.bordertoprightradius, 
-      this.borderleftwidth, this.bordertopleftradius, 
-      width)
     pop()
   end
 end

@@ -1,7 +1,6 @@
 ui = require 'loveui/ui'
 
 local context = ui.context()
-
 function love.load()
   success = love.graphics.setMode( 800, 600, false, false, 0 )
   context:add(
@@ -11,10 +10,12 @@ function love.load()
         borderleftcolor = {0, 255, 0, 255},
         borderrightcolor = {0, 255, 0, 255},
         bordercolor = {255, 0, 0, 255},
-        bordertopwidth = 30,
-        borderbottomwidth=30,
+        borderleftwidth = 10,
+        bordertopwidth = 20,
+        borderrightwidth = 30,
+        borderbottomwidth=40,
         borderwidth = 20,
-        borderradius= 15,
+        borderradius = 100,
         backgroundcolor = {0, 0, 0, 255}, 
         backgroundimage = "./button.png"}),
         
@@ -29,10 +30,8 @@ function love.load()
       end))
 end
 
-
 function love.update(dt)
   context:update(dt)
-  print(love.timer.getFPS())
 end
 
 function love.draw()

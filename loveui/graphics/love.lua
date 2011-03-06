@@ -16,6 +16,7 @@ draw = love.graphics.draw
 framebuffer = love.graphics.newFramebuffer
 rendertarget = love.graphics.setRenderTarget
 
+
 --- Draw a sub-part of a circle.
 -- @param x The center x coordinate.
 -- @param y The center y coordinate.
@@ -45,7 +46,6 @@ function arc(mode, left, top, angle, radius, width, length)
     -- Outer and inner radius of arc.
     -- Reduce radius to allow for extra-width from anti-aliasing.
     local outer, inner = radius- 0.5, radius-width + 0.5
-    
     -- Map each pixel.
     imagedata:mapPixel(function(x, y, r, g, b, a)
       x, y = x-outer, y-outer

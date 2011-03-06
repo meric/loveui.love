@@ -1,0 +1,1323 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../../luadoc.css" type="text/css" />
+	<!--meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/-->
+</head>
+
+<body>
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+<div id="main">
+
+<div id="navigation">
+
+
+<h1>LuaDoc</h1>
+<ul>
+	
+	<li><a href="../../index.html">Index</a></li>
+	
+</ul>
+
+
+<!-- Module list -->
+
+<h1>Modules</h1>
+<ul>
+
+	<li>
+		<a href="../../modules/ui.html">ui</a>
+	</li>
+
+</ul>
+
+
+
+<!-- File list -->
+
+<h1>Files</h1>
+<ul>
+
+	<li>
+		<a href="../../files/graphics/graphics.html">graphics/graphics.lua</a>
+	</li>
+
+	<li>
+		<a href="../../files/ui.html">ui.lua</a>
+	</li>
+
+	<li>
+		<a href="../../files/ui/button.html">ui/button.lua</a>
+	</li>
+
+	<li>
+		<a href="../../files/ui/context.html">ui/context.lua</a>
+	</li>
+
+	<li>
+		<a href="../../files/ui/style.html">ui/style.lua</a>
+	</li>
+
+	<li>
+		<a href="../../files/ui/textfield.html">ui/textfield.lua</a>
+	</li>
+
+	<li><strong>ui/widget.lua</strong></li>
+	
+	<li>
+		<a href="../../files/util/chain.html">util/chain.lua</a>
+	</li>
+
+	<li>
+		<a href="../../files/util/class.html">util/class.lua</a>
+	</li>
+
+	<li>
+		<a href="../../files/util/geometry.html">util/geometry.lua</a>
+	</li>
+
+	<li>
+		<a href="../../files/util/tag.html">util/tag.lua</a>
+	</li>
+
+	<li>
+		<a href="../../files/util/test.html">util/test.lua</a>
+	</li>
+
+</ul>
+
+
+
+
+
+
+</div> <!-- id="navigation" -->
+
+<div id="content">
+
+<h1>File <code>ui/widget.lua</code></h1>
+
+
+<p>loveui is a love2d library to provide resuable GUI widgets to love2d developers.</p>
+
+
+
+
+
+
+<h2>Functions</h2>
+<table class="function_list">
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:add">widget:add</a>&nbsp;(...)</td>
+	<td class="summary">Add elements to the widget.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:addstyle">widget:addstyle</a>&nbsp;(st)</td>
+	<td class="summary">Add a style to the widget, so all widget that matches the style's tags will have that style applied.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:addtag">widget:addtag</a>&nbsp;(t)</td>
+	<td class="summary">Add a tag to the widget, so only styles with tags that this widget matches will be applied to this widget.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:addwidget">widget:addwidget</a>&nbsp;(w)</td>
+	<td class="summary">Add a widget to the widget.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:apply">widget:apply</a>&nbsp;(attrs)</td>
+	<td class="summary">Copies all key-value pairs into the widgets' attributes field.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:bounds">widget:bounds</a>&nbsp;()</td>
+	<td class="summary">Calculates the left, top, width, height.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:compute">widget:compute</a>&nbsp;()</td>
+	<td class="summary">Compute the current style for a widget, and all sub-widgets.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:contains">widget:contains</a>&nbsp;(x, y)</td>
+	<td class="summary">Returns true if the bounds of the widget contains point x, y.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:draw">widget:draw</a>&nbsp;()</td>
+	<td class="summary">Draws the widget and any sub-widget within the widget.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:drawbackground">widget:drawbackground</a>&nbsp;(st, left, top, width, height, bounds)</td>
+	<td class="summary">Draw the background of the widget.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:drawborder">widget:drawborder</a>&nbsp;(st, left, top, width, height, bounds)</td>
+	<td class="summary">Draw the border of the widget.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:drawcontent">widget:drawcontent</a>&nbsp;(st, left, top, width, height, bounds)</td>
+	<td class="summary">Override to draw the content of the widget.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:drawcorner">widget:drawcorner</a>&nbsp;(st, left, top, width, height, bounds)</td>
+	<td class="summary">Draw the corner of the widget where borders meet.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:focus">widget:focus</a>&nbsp;(w)</td>
+	<td class="summary">Switch focus to self or a subwidget and invoke to appropriate handlers.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:get">widget:get</a>&nbsp;(tags)</td>
+	<td class="summary">Gets all sub-widgets of the widget with the matching tags.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:init">widget:init</a>&nbsp;(tags, args)</td>
+	<td class="summary">Initiates a widget instance.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:match">widget:match</a>&nbsp;(tags)</td>
+	<td class="summary">Checks whether the widget matches the specified tags.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:mousepressed">widget:mousepressed</a>&nbsp;(x, y, button)</td>
+	<td class="summary">Send mousepressed event to widget, and/or sub-widgets.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:mousereleased">widget:mousereleased</a>&nbsp;(x, y, button)</td>
+	<td class="summary">Send mousereleased event to the focused widget.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:onblur">widget:onblur</a>&nbsp;(fn)</td>
+	<td class="summary">Sets the on lost focus handler for the widget.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:onchange">widget:onchange</a>&nbsp;(fn)</td>
+	<td class="summary">Sets the on change handler for the widget.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:onclick">widget:onclick</a>&nbsp;(fn)</td>
+	<td class="summary">Sets the on click handler for the widget.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:onfocus">widget:onfocus</a>&nbsp;(fn)</td>
+	<td class="summary">Sets the on focus handler for the widget.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:onkeydown">widget:onkeydown</a>&nbsp;(fn)</td>
+	<td class="summary">Sets the on keydown handler for the widget.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:onkeypress">widget:onkeypress</a>&nbsp;(fn)</td>
+	<td class="summary">Sets the on keypress handler for the widget.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:onkeyup">widget:onkeyup</a>&nbsp;(fn)</td>
+	<td class="summary">Sets the on keyup handler for the widget.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:onmousedown">widget:onmousedown</a>&nbsp;(fn)</td>
+	<td class="summary">Sets the on mousedown handler for the widget.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:onmouseenter">widget:onmouseenter</a>&nbsp;(fn)</td>
+	<td class="summary">Sets the on mouseenter handler for the widget.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:onmouseleave">widget:onmouseleave</a>&nbsp;(fn)</td>
+	<td class="summary">Sets the on mouseleave handler for the widget.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:owns">widget:owns</a>&nbsp;(..., elt)</td>
+	<td class="summary">Checks whether an element was added to a widget and not removed.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:remove">widget:remove</a>&nbsp;(...)</td>
+	<td class="summary">Remove elements from the widget.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:removestyle">widget:removestyle</a>&nbsp;(st)</td>
+	<td class="summary">Removes a style from the widget that was previously added.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:removewidget">widget:removewidget</a>&nbsp;(w)</td>
+	<td class="summary">Removes a widget from the widget that was previously added.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:size">widget:size</a>&nbsp;()</td>
+	<td class="summary">Override to calculate a default size for the widget, when its style's  <code>width</code> and <code>height</code> attributes are set to <code>"auto"</code>.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#widget:update">widget:update</a>&nbsp;(dt)</td>
+	<td class="summary">Update the widget, and sub-widgets </td>
+	</tr>
+
+</table>
+
+
+
+
+
+
+<br/>
+<br/>
+
+
+
+
+<h2><a name="functions"></a>Functions</h2>
+<dl class="function">
+
+
+
+<dt><a name="widget:add"></a><strong>widget:add</strong>&nbsp;(...)</dt>
+<dd>
+Add elements to the widget. An element could be <code>widget</code> or <code>style</code> or tag.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ...: <code>widget</code>s or <code>style</code>s or a string.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:addstyle"></a><strong>widget:addstyle</strong>&nbsp;(st)</dt>
+<dd>
+Add a style to the widget, so all widget that matches the style's tags will have that style applied.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  st: The style to be added.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:addtag"></a><strong>widget:addtag</strong>&nbsp;(t)</dt>
+<dd>
+Add a tag to the widget, so only styles with tags that this widget matches will be applied to this widget.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  t: The tag to be added.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:addwidget"></a><strong>widget:addwidget</strong>&nbsp;(w)</dt>
+<dd>
+Add a widget to the widget.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  w: The widget to be added.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:apply"></a><strong>widget:apply</strong>&nbsp;(attrs)</dt>
+<dd>
+Copies all key-value pairs into the widgets' attributes field.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  attrs: A table containing key-value pairs
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:bounds"></a><strong>widget:bounds</strong>&nbsp;()</dt>
+<dd>
+Calculates the left, top, width, height. Left, top are relative if the computed style's <code>position</code> attribute is <code>"relative"</code>; It is absolute if the <code>position</code> attribute is <code>"absolute"</code>. This method should be fast.
+
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:compute"></a><strong>widget:compute</strong>&nbsp;()</dt>
+<dd>
+Compute the current style for a widget, and all sub-widgets. This function is expensive, do not call every frame.
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+The current style
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:contains"></a><strong>widget:contains</strong>&nbsp;(x, y)</dt>
+<dd>
+Returns true if the bounds of the widget contains point x, y.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  x: The x coordinate.
+	</li>
+	
+	<li>
+	  y: The y coordinate.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:draw"></a><strong>widget:draw</strong>&nbsp;()</dt>
+<dd>
+Draws the widget and any sub-widget within the widget.
+
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:drawbackground"></a><strong>widget:drawbackground</strong>&nbsp;(st, left, top, width, height, bounds)</dt>
+<dd>
+Draw the background of the widget. Can be overridden by subclasses.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  st: The computed style to follow.
+	</li>
+	
+	<li>
+	  left: 
+	</li>
+	
+	<li>
+	  top: 
+	</li>
+	
+	<li>
+	  width: 
+	</li>
+	
+	<li>
+	  height: 
+	</li>
+	
+	<li>
+	  bounds: The bounding rectangle of the widget. The background will lie on or within the bounds
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:drawborder"></a><strong>widget:drawborder</strong>&nbsp;(st, left, top, width, height, bounds)</dt>
+<dd>
+Draw the border of the widget. Can be overridden by subclasses.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  st: The computed style to follow.
+	</li>
+	
+	<li>
+	  left: 
+	</li>
+	
+	<li>
+	  top: 
+	</li>
+	
+	<li>
+	  width: 
+	</li>
+	
+	<li>
+	  height: 
+	</li>
+	
+	<li>
+	  bounds: The bounding rectangle of the widget. The border will reside on the outside of bounds.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:drawcontent"></a><strong>widget:drawcontent</strong>&nbsp;(st, left, top, width, height, bounds)</dt>
+<dd>
+Override to draw the content of the widget. To be overridden by subclasses.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  st: The computed style to follow.
+	</li>
+	
+	<li>
+	  left: 
+	</li>
+	
+	<li>
+	  top: 
+	</li>
+	
+	<li>
+	  width: 
+	</li>
+	
+	<li>
+	  height: 
+	</li>
+	
+	<li>
+	  bounds: The bounding rectangle of the widget. The background will lie on or within the bounds
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:drawcorner"></a><strong>widget:drawcorner</strong>&nbsp;(st, left, top, width, height, bounds)</dt>
+<dd>
+Draw the corner of the widget where borders meet. Can be overridden by subclasses.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  st: The computed style to follow.
+	</li>
+	
+	<li>
+	  left: 
+	</li>
+	
+	<li>
+	  top: 
+	</li>
+	
+	<li>
+	  width: 
+	</li>
+	
+	<li>
+	  height: 
+	</li>
+	
+	<li>
+	  bounds: The bounding rectangle of the widget. The border will reside on the outside of bounds.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:focus"></a><strong>widget:focus</strong>&nbsp;(w)</dt>
+<dd>
+Switch focus to self or a subwidget and invoke to appropriate handlers.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  w: The widget to focus. Should be a subwidget or self but this is not checked by the function.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:get"></a><strong>widget:get</strong>&nbsp;(tags)</dt>
+<dd>
+Gets all sub-widgets of the widget with the matching tags. Excludes the widget being called even if it matches the tags specified in the argument.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  tags: A string of whitespaced separated tags
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+A table containing the matching widgets
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:init"></a><strong>widget:init</strong>&nbsp;(tags, args)</dt>
+<dd>
+Initiates a widget instance. The widget class is meant to be subclassed by other widgets and is not designed to be instantiated. Subclasses are supposed to read args from self.attributes.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  tags: A string of whitespaced separated tags
+	</li>
+	
+	<li>
+	  args: A table of key-value object attributes
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:match"></a><strong>widget:match</strong>&nbsp;(tags)</dt>
+<dd>
+Checks whether the widget matches the specified tags.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  tags: A string of whitespaced separated tags
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+Returns <code>true</code> if the widget matches the tags.
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:mousepressed"></a><strong>widget:mousepressed</strong>&nbsp;(x, y, button)</dt>
+<dd>
+Send mousepressed event to widget, and/or sub-widgets.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  x: The x coordinate.
+	</li>
+	
+	<li>
+	  y: The y coordinate.
+	</li>
+	
+	<li>
+	  button: The mouse button pressed.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:mousereleased"></a><strong>widget:mousereleased</strong>&nbsp;(x, y, button)</dt>
+<dd>
+Send mousereleased event to the focused widget. A mouse release event only occurs when the mouse press was sent to the same widget.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  x: The x coordinate.
+	</li>
+	
+	<li>
+	  y: The y coordinate.
+	</li>
+	
+	<li>
+	  button: The mouse button released.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:onblur"></a><strong>widget:onblur</strong>&nbsp;(fn)</dt>
+<dd>
+Sets the on lost focus handler for the widget. A change occurs when a widget has lost focus by mouse or tab.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  fn: The handler function. Arguments to <code>fn</code> are (self).
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:onchange"></a><strong>widget:onchange</strong>&nbsp;(fn)</dt>
+<dd>
+Sets the on change handler for the widget. A change occurs when a widget's user value changes. It is up to the widget as to when the handler is called.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  fn: The handler function. Arguments to <code>fn</code> are (self, oldvalue, newvalue).
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:onclick"></a><strong>widget:onclick</strong>&nbsp;(fn)</dt>
+<dd>
+Sets the on click handler for the widget. A click occurs when a mouse press and a mouse release occurs on the same widget's bounds.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  fn: The handler function. Arguments to <code>fn</code> are (self, x, y, button).
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:onfocus"></a><strong>widget:onfocus</strong>&nbsp;(fn)</dt>
+<dd>
+Sets the on focus handler for the widget. A change occurs when a widget has been focused by mouse or tab.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  fn: The handler function. Arguments to <code>fn</code> are (self).
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:onkeydown"></a><strong>widget:onkeydown</strong>&nbsp;(fn)</dt>
+<dd>
+Sets the on keydown handler for the widget. A keydown event is triggered when a key is helf while the element is focused.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  fn: The handler function. Arguments to <code>fn</code> are (self, key, unicode).
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:onkeypress"></a><strong>widget:onkeypress</strong>&nbsp;(fn)</dt>
+<dd>
+Sets the on keypress handler for the widget. A keypress event is triggered when a key is held and released while the element is focused.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  fn: The handler function. Arguments to <code>fn</code> are (self, key, unicode).
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:onkeyup"></a><strong>widget:onkeyup</strong>&nbsp;(fn)</dt>
+<dd>
+Sets the on keyup handler for the widget. A keyup event is triggered when a key is released while the element is focused.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  fn: The handler function. Arguments to <code>fn</code> are (self, key, unicode).
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:onmousedown"></a><strong>widget:onmousedown</strong>&nbsp;(fn)</dt>
+<dd>
+Sets the on mousedown handler for the widget.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  fn: The handler function. Arguments to <code>fn</code> are (self, x, y, button).
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:onmouseenter"></a><strong>widget:onmouseenter</strong>&nbsp;(fn)</dt>
+<dd>
+Sets the on mouseenter handler for the widget. A mouseenter event is triggered when the mouse moves within the bounds of an event.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  fn: The handler function. Arguments to <code>fn</code> are (self, x, y).
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:onmouseleave"></a><strong>widget:onmouseleave</strong>&nbsp;(fn)</dt>
+<dd>
+Sets the on mouseleave handler for the widget. A mouseleave event is triggered when the mouse moves out of the bounds of an event.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  fn: The handler function. Arguments to <code>fn</code> are (self, x, y).
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:owns"></a><strong>widget:owns</strong>&nbsp;(..., elt)</dt>
+<dd>
+Checks whether an element was added to a widget and not removed.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ...: 
+	</li>
+	
+	<li>
+	  elt: The widget or style.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+Returns <code>true</code> if the element was added to the widget and not removed.
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:remove"></a><strong>widget:remove</strong>&nbsp;(...)</dt>
+<dd>
+Remove elements from the widget. An element could be <code>widget</code> or <code>style</code> or tag.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ...: <code>widget</code>s or <code>style</code>s or a string.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:removestyle"></a><strong>widget:removestyle</strong>&nbsp;(st)</dt>
+<dd>
+Removes a style from the widget that was previously added.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  st: The style to be removed.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:removewidget"></a><strong>widget:removewidget</strong>&nbsp;(w)</dt>
+<dd>
+Removes a widget from the widget that was previously added.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  w: The widget to be removed.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:size"></a><strong>widget:size</strong>&nbsp;()</dt>
+<dd>
+Override to calculate a default size for the widget, when its style's  <code>width</code> and <code>height</code> attributes are set to <code>"auto"</code>. This method should be fast.
+
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="widget:update"></a><strong>widget:update</strong>&nbsp;(dt)</dt>
+<dd>
+Update the widget, and sub-widgets
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  dt: 
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+</dl>
+
+
+
+
+
+
+
+</div> <!-- id="content" -->
+
+</div> <!-- id="main" -->
+
+<div id="about">
+	<p><a href="http://validator.w3.org/check?uri=referer"><img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0!" height="31" width="88" /></a></p>
+</div> <!-- id="about" -->
+
+</div> <!-- id="container" -->	
+</body>
+</html>

@@ -17,7 +17,6 @@ framebuffer = love.graphics.newFramebuffer
 rendertarget = love.graphics.setRenderTarget
 
 --- Draw a sub-part of a circle.
--- TODO: Draw antialiased arc.
 -- @param x The center x coordinate.
 -- @param y The center y coordinate.
 -- @param angle The angle to rotate the arc.

@@ -580,8 +580,8 @@ function widget:drawborder(st, left, top, width, height)
     -- corner
     if radius > 0 then
       local dx, dy = innerleft - tmidleft, 
-        math.max(innertop, lmidtop)- lmidtop
-      local length = math.atan2(dy, dx)
+        math.max(innertop - lmidtop, 0)
+      local length = math.atan2(dy, dx)-0.001
       if dx == 0 or dy == 0 then 
         length = math.pi/4 
       end
@@ -666,9 +666,13 @@ end
 function widget:drawbackground(st, left, top, width, height)
   local this = st.styles
   color(this.backgroundcolor)
-  -- clip this rectangle's corners???.
-  -- use poly???
-  rectangle("fill", left, top, width, height)
+  -- draw corner, then use polygon.
+  
+  rectangle("fill", 
+    left - this.borderleftwidth, 
+    top - this.bordertopwidth, 
+    width + this.borderleftwidth + this.borderrightwidth, 
+    height + this.bordertopwidth + this.borderbottomwidth)
 end
 
 --- Override to draw the content of the widget.

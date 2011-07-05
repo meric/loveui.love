@@ -72,7 +72,6 @@ function style:compute()
     "marginright",
     "marginleft",
     "marginbottom")
-    
   if this.left then this.right = nil end
   if this.top then this.bottom = nil end
   

@@ -129,16 +129,6 @@ Note that the function returns widget1. See Example Code section.
     borderbottomcolor
     
     borderimage
-    bordertopimage
-    borderrightimage
-    borderbottomimage
-    borderleftimage
-    
-    bordercornerimage
-    bordertopleftimage
-    bordertoprightimage
-    borderbottomleftimage
-    borderbottomrightimage
     
     padding
     paddingtop

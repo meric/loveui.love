@@ -182,7 +182,10 @@ function textfield:update(dt)
   if mouseheld("l") and self.mouseheldloc ~= nil and self:match("ui.focus") then 
     --dragging the rectangle
 		if mousex() ~= self.mouseheldloc then
-      self.selectionlength=self:textlocation(mousex())-self.selectionstart-1;
+      self.selectionlength=self:textlocation(mousex())-self.selectionstart;
+      if self.selectionlength > 0 then
+        self.selectionlength = self.selectionlength - 1
+      end
 		end
 		self:normalize()
 	end

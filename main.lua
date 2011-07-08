@@ -20,7 +20,7 @@ end
 
 function love.update(dt)
   context:update(dt)
-  print(love.timer.getFPS())
+  --print(love.timer.getFPS())
 end
 
 function love.draw()

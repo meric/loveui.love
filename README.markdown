@@ -91,24 +91,22 @@ Note that the function returns widget1. See Example Code section.
 ## Reference ##
 
 ### ui.style attributes ###
+* ones are not implemented yet.
 
     left
     top
-    right
-    bottom
     
     width
     height
     
     color
-    fontfamily
-    fontsize
-    fontweight
-    
+    font
+    selectioncolor    
+
     backgroundcolor
-    backgroundimage
-    backgroundrepeat
-    backgroundposition
+    *backgroundimage
+    *backgroundrepeat
+    *backgroundposition
     
     borderwidth
     borderleftwidth
@@ -128,19 +126,13 @@ Note that the function returns widget1. See Example Code section.
     borderrightcolor
     borderbottomcolor
     
-    borderimage
+    *borderimage
     
-    padding
-    paddingtop
-    paddingright
-    paddingleft
-    paddingbottom
-    
-    margin
-    margintop
-    marginright
-    marginleft
-    marginbottom
+    *padding
+    *paddingtop
+    *paddingright
+    *paddingleft
+    *paddingbottom
 
 ### widget triggers ###
 

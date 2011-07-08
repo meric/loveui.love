@@ -2,79 +2,29 @@ ui = require 'loveui/ui'
 
 local context = ui.context()
 function love.load()
+  love.graphics.setBackgroundColor{255,255,255}
   success = love.graphics.setMode( 800, 600, false, false, 0 )
+  local st_b1, button_b1, st_t1, textfield_t1 = 
   context:add(
-    ui.style("ui.button tag1", {
-        left = 200, top = 200, 
-        width = 100, height = 25,
-        --background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#EBEBEB), to(#A1A1A1));,
-        bordercolor = {64, 64, 64, 128},
-        borderimage = "./button.png",
-        borderimageslice = {25, 25, 25, 25},
-        borderimagerepeat = {"stretch", "stretch"},
-        borderwidth = 40,
-        bordertopcolor = {255, 0, 0, 128},
-        borderbottomcolor = {0, 0, 255, 128},
-        borderradius = 100,
-        background = function(x, y, r, g, b, a)
-          -- x, y >= 0 <= width, height
-          return r, g, b, a
-        end,
-        backgroundcolor = {255,255,255,255},
-        backgroundimage = "./button.png",
-        backgroundimagerepeat = "stretch",
-        backgroundgradient = function (x, y, r, g, b, a)
-          return r, g, b, a
-        end}),
-    -- background : string(image name),function(gradient),table(color)?
-    ui.button("ui.button tag1 tag2 tag3", {value = "Click"})
-      :onmousedown( 
-      function(self, x, y, button)
-        print("mousedown", x, y, button)
-      end)
-      :onclick(
-      function(self, x, y, button)
+    ui.style("b1", {left=10,top=10,color={0,0,255}}),
+    ui.button("b1", {value = "Menu"})
+      :onclick(function(self, x, y, button)
         print("click", x, y, button)
+      end),
+    ui.style("t1", {left=10,top=50}),
+    ui.textfield("t1", {value="text"})
+      :onchange(function(self, old, new)
+        print(old.." -> " .. new)
       end))
 end
 
 function love.update(dt)
   context:update(dt)
-  --print(love.timer.getFPS())
+  print(love.timer.getFPS())
 end
 
 function love.draw()
-  --context:draw()
-  
-  local radius = 200
-  ui.push()
-    ui.translate(100,100)
-    ui.color{255,255,255,255}
-    ui.rectangle("fill", 0,0,radius*2,radius*2)
-    
-    
-    ui.push()
-      ui.translate(radius-100,radius)
-      ui.color{255,0,0,128}
-      ui.arc1("fill", radius, radius, math.pi/8)
-      ui.translate(-2,0)
-    ui.pop()
-    
-  ui.pop()
-  
-  ui.push()
-    ui.translate(300,100)
-    ui.color{255,255,255,255}
-    ui.rectangle("fill", 100,0,radius*2,radius*2)
-    ui.push()
-      ui.translate(radius,radius)
-      ui.color{255,0,0,128}
-      ui.arc3("fill", radius, radius, math.pi/4)
-      --ui.arc2("fill", radius, radius, math.pi/4)
-    ui.pop()
-  
-  ui.pop()
-  
+  context:draw()
 end
 
 function love.keypressed(key, unicode)

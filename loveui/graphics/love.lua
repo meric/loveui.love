@@ -10,18 +10,62 @@ pop = love.graphics.pop
 rotate = love.graphics.rotate
 translate = love.graphics.translate
 scale = love.graphics.scale
-color = love.graphics.setColor
 line = love.graphics.line
-point = love.graphics.point
 draw = love.graphics.draw
 framebuffer = love.graphics.newFramebuffer
 rendertarget = love.graphics.setRenderTarget
+scissor = love.graphics.setScissor
+newfont = love.graphics.newFont
+text = love.graphics.print
+time = love.timer.getTime
+keyheld = love.keyboard.isDown
+mouseheld = love.mouse.isDown
+mousex = love.mouse.getX
+mousey = love.mouse.getY
+
+
+function font(...)
+  if ... then 
+    if ... ~= love.graphics.getFont() then
+      love.graphics.setFont(...)
+    end
+  else 
+    return love.graphics.getFont() 
+  end
+end
+
+function point(x, y)
+  rectangle("fill", x, y, 1, 1)
+end
+
+function color(...)
+  if ... then return love.graphics.setColor(...)
+  else return love.graphics.getColor() end
+end
 
 local function nextpow(x)
   return math.pow(2, math.ceil(math.log(x)/math.log(2)))
 end
 local function archash(mode, radius, width, length)
   return table.concat({mode, radius, width, length}, "|")
+end
+
+local function arcpixel(mode, x, y, inner, outer, length)
+  local a = math.atan2(y, x)
+  if a >= 0 and a <= length then
+    local dist = x*x + y*y
+    if dist >= inner^2 and dist <= outer^2 and mode == "fill" then
+      -- Completely filled.
+      return 255
+    elseif dist >= outer^2 and dist <= (outer+1)^2 then
+      -- Outer border anti-aliasing.
+      return (1-(math.sqrt(dist)-outer))*255
+    elseif dist >= (inner-1)^2 and dist <= inner^2 then
+      -- Inner border anti-aliasing.
+      return (math.sqrt(dist)-inner)*255
+    end
+  end
+  return 0
 end
 
 --- Draw a sub-part of a circle. Memo-ed using images.
@@ -40,65 +84,33 @@ function arc1(mode, radius, width, length)
     local outer, inner = radius- 0.5, radius-width + 0.5
     -- Map each pixel.
     imagedata:mapPixel(function(x, y, r, g, b, a)
-      x, y = x-radius, y-radius
-      local a = math.atan2(y, x)
-      if string.find(tostring(length-a), "0%.00") then 
-        --print(length, a, length-a, x, y) 
-      end
-      if a == length then 
-        --print(length, a, x, y) 
-      end
-      if a > 0 and a <= length then
-        local dist = x*x + y*y
-        if dist >= inner^2 and dist <= outer^2 and mode == "fill" then
-          -- Completely filled.
-          return 255, 255, 255, 255
-        elseif dist >= outer^2 and dist <= (outer+1)^2 then
-          -- Outer border anti-aliasing.
-          return 255, 255, 255, (1-(math.sqrt(dist)-outer))*255
-        elseif dist >= (inner-1)^2 and dist <= inner^2 then
-          -- Inner border anti-aliasing.
-          return 255, 255, 255, (math.sqrt(dist)-inner)*255
-        end
-      end
-      return 0, 0, 0, 0
+      return 255, 255, 255, arcpixel(mode, x, y, inner, outer, length)
     end)
     arcimg[hash] = love.graphics.newImage(imagedata)
   end
   arcimg[hash]:setFilter("linear","nearest")
-  draw(arcimg[hash], -radius, -radius)
+  draw(arcimg[hash], 0, 0)
 end
 
---- Draw a sub-part of a circle.
--- @param radius The radius from the outer side of the arc.
--- @param width The thickness of the arc.
--- @param length The length of the arc in radians.
 function arc2(mode, radius, width, length)
-  -- Precision of the round edge.
-  local delta = math.pi / 18
-  -- Trigonometry
-  local function px(radius, angle) return radius*math.cos(angle) end
-  local function py(radius, angle) return radius*math.sin(angle) end
-  love.graphics.setLine( 1, "smooth" )
-  -- Draw arc by drawing many little trapezoids.
-  -- Modify the radius to produce anti-alias effect.
-  -- o = outer, i = inner.
-  local o, i = radius-0.5, radius-width+0.5
-  local function trapezoid(l, c)
-    if mode == "fill" then 
-      polygon("fill", px(i, l), py(i, l), px(o, l), py(o, l), px(o, c), 
-        py(o, c), px(i, c), py(i, c))
+  -- Outer and inner radius of arc.
+  -- Reduce radius to allow for extra-width from anti-aliasing.
+  local outer, inner = radius - 0.5 , radius-width + 0.5
+  local currentcolor = {color()}
+  ui.push()
+    for x = 0, radius * 2 do
+      for y = 0, radius * 2 do
+        local a = arcpixel(mode, x, y, inner, outer, length)
+        if a > 0 then
+          local pointcolor = {unpack(currentcolor)}
+          pointcolor[4] = pointcolor[4] * (a / 255)
+          color(unpack(pointcolor))
+          point(x, y)
+        end
+      end
     end
-    -- Anti-aliasing round edges of arc.
-    --line(px(o, l), py(o, l), px(o, c), py(o, c))
-    --line(px(i, l), py(i, l), px(i, c), py(i, c))
-  end
-  local last = 0
-  for current = delta, length, delta do
-    trapezoid(last, current)
-    last = current
-  end
-  trapezoid(last, length)
+  ui.pop()
+  color(unpack(currentcolor))
 end
 
 --- Draw a sub-part of a circle.
@@ -118,15 +130,15 @@ function arc(mode, left, top, angle, radius, width, length)
   width = math.min(radius, width)
   push() 
   translate(left, top)
-  --rotate(angle) 
+  rotate(angle) 
   local hash = archash(mode, radius, width, length)
-  if arccnt[hash] > 1024 then
+  if arccnt[hash] > -1 then
     -- draw arc image
-    arc1(mode, radius, width, length)
+    arc1(mode, radius-1, width, length)
   else
     arccnt[hash] = arccnt[hash] + 1
     -- draw arc graphically
-    arc2(mode, radius, width, length)
+    arc2(mode, radius-1, width, length)
   end
   pop()
 end

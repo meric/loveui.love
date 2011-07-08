@@ -26,6 +26,12 @@ function button:init(tags, args)
   local label = self.attributes.value;
 end
 
+function button:drawcontent()
+  color(self.style.styles.color)
+  assert(self.attributes.value, "button requires `value` attribute set.")
+  text(self.attributes.value, 11, 11)
+end
+
 test("ui.button", function()
     local bt = button("mytag", { value = "Okay" })
     

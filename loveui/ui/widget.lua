@@ -4,6 +4,7 @@ module ("ui", package.seeall)
 
 require "loveui/util/test"
 require "loveui/util/class"
+require "loveui/util/operator"
 
 widget = class()
 
@@ -63,7 +64,21 @@ function widget:init(tags, args)
   self.style = nil
   
   -- Compute current style.
-  self:compute()
+  self:computestyle()
+  
+  -- Cache of current bounds. (relative)
+  self.bounds = nil
+  
+  -- Cache of current bounds. (absolute)
+  self.area = nil
+  
+  self.visible = nil
+  
+  -- Compute current bounds
+  self:computebounds()
+  
+  -- Compute current bounds
+  self:computearea()
 end
 
 --- Add a style to the widget, so all widget that matches the style's 
@@ -78,13 +93,6 @@ function widget:addstyle(st)
   -- Possibly replace old style.
   self.styles[st.tags] = st
   st.owner = self
-  
-  -- Re-compute style for all subwidgets
-  for i, v in ipairs(self.content) do
-    if v:match(st.tags) then
-      v:compute()
-    end
-  end
   return st
 end
 
@@ -96,7 +104,6 @@ function widget:removestyle(st)
   end
   self.styles[st.tags] = nil
   st.owner = nil
-  self:compute()
   return st
 end
 
@@ -114,8 +121,6 @@ function widget:addtag(t)
       self.tags = sorttags(t)
     end
   end
-  -- Re-compute style.
-  self:compute()
   return t
 end
 
@@ -131,7 +136,6 @@ function widget:removetag(t)
       self.tags = sorttags(tag)
     end
   end
-  self:compute()
 end
 
 --- Add a widget to the widget. 
@@ -143,8 +147,6 @@ function widget:addwidget(w)
   end
   table.insert(self.content, w)
   w.owner = self
-  -- Compute the style for the sub-widget.
-  w:compute()
 end
 
 --- Removes a widget from the widget that was previously added.
@@ -175,6 +177,18 @@ function widget:add(...)
     else
       self:addwidget(elt)
     end
+  end
+  -- Compute current style for the sub-widgets
+  self:computestyle()
+  -- Compute current relative bounds for the sub-widgets
+  self:computebounds()
+  -- Compute current absolute area for the sub-widgets
+  self:computearea()
+  
+  if self.owner then
+    self.owner:computestyle()
+    self.owner:computebounds()
+    self.owner:computearea()
   end
   return ...
 end
@@ -209,6 +223,14 @@ function widget:remove(...)
     else
       self:removewidget(elt)
     end
+  end
+  self:computestyle()
+  self:computebounds()
+  self:computearea()
+  if self.owner then
+    self.owner:computestyle()
+    self.owner:computebounds()
+    self.owner:computearea()
   end
   return ...
 end
@@ -249,7 +271,7 @@ end
 --- Compute the current style for a widget, and all sub-widgets.
 -- This function is expensive, do not call every frame.
 -- @return The current style
-function widget:compute()
+function widget:computestyle()
   local owner = self.owner
   local styles ={}
   while owner do
@@ -264,7 +286,8 @@ function widget:compute()
   end
   self.style = style(self.tags, styles)
   local this = self.style.styles
-  local left, top, width, height = self:bounds()
+  self:computebounds()
+  local left, top, width, height = unpack(self.bounds)
   local function constrain(name, val)
     if this[name] then
       this[name] = math.min(val, this[name])
@@ -281,9 +304,17 @@ function widget:compute()
     constrain("borderbottomrightradius", min + 
       math.min(this.borderleftwidth, this.borderbottomwidth))
   end
+  this.borderleftwidth = this.borderleftwidth or 0
+  this.bordertopwidth = this.bordertopwidth or 0
+  this.borderrightwidth = this.borderrightwidth or 0
+  this.borderbottomwidth = this.borderbottomwidth or 0
+  this.bordertopleftradius = this.bordertopleftradius or 0
+  this.bordertoprightradius = this.bordertoprightradius or 0
+  this.borderbottomleftradius = this.borderbottomleftradius or 0
+  this.borderbottomrightradius = this.borderbottomrightradius or 0
   -- Compute style for sub-widgets.
   for i, v in ipairs(self.content) do
-    v:compute()
+    v:computestyle()
   end
   return self.style
 end
@@ -336,7 +367,7 @@ end
 
 --- Sets the on mouseenter handler for the widget.
 -- A mouseenter event is triggered when the mouse moves within the 
--- bounds of an event.
+-- bounds of a widget.
 -- @param fn The handler function.
 -- Arguments to <code>fn</code> are (self, x, y).
 function widget:onmouseenter(fn)
@@ -346,7 +377,7 @@ end
 
 --- Sets the on mouseleave handler for the widget.
 -- A mouseleave event is triggered when the mouse moves out of the 
--- bounds of an event.
+-- bounds of a widget.
 -- @param fn The handler function.
 -- Arguments to <code>fn</code> are (self, x, y).
 function widget:onmouseleave(fn)
@@ -389,13 +420,13 @@ end
 -- <code>"relative"</code>; It is absolute if the <code>position</code> 
 -- attribute is <code>"absolute"</code>.
 -- This method should be fast.
-function widget:bounds()
+function widget:computebounds()
   local this = self.style.styles;
   
   local width, height = this.width or "auto", this.height or "auto";
   
   -- Take care of "auto" size.
-  local w, h = widget:size();
+  local w, h = self:size();
   if width == "auto" and height == "auto" then
     width, height = w, h
   elseif width == "auto" then
@@ -418,7 +449,61 @@ function widget:bounds()
   elseif not top and not this.bottom then
     top = 0
   end
-  return left, top, width, height
+  
+  self.bounds = {left, top, width, height}
+  
+  -- Compute bounds for sub-widgets.
+  for i, v in ipairs(self.content) do
+    v:computebounds()
+  end
+  
+  return {left, top, width, height}
+end
+
+--- Calculates the left, top, width, height, taking into account borders. Left, 
+-- top are absolute.
+-- This method should be fast.
+function widget:computearea()
+  if not self.bounds then self.computebounds() end
+  local lwidth = (self.style.styles.borderleftwidth or 0)
+  local rwidth = (self.style.styles.borderrightwidth or 0)
+  local ewidth = lwidth + rwidth
+  local theight = (self.style.styles.bordertopwidth or 0)
+  local bheight = (self.style.styles.borderbottomwidth or 0)
+  local eheight = theight + bheight 
+  
+  if not self.owner then 
+    self.area = {unpack(self.bounds)}
+    self.area[1] = self.area[1] - lwidth
+    self.area[2] = self.area[2] - theight
+    self.area[3] = self.area[3] + ewidth
+    self.area[4] = self.area[4] + eheight
+      -- Compute bounds for sub-widgets.
+    for i, v in ipairs(self.content) do
+      v:computearea()
+    end
+    return self.area 
+  end
+    
+  local area = {unpack(self.bounds)}
+  area[1] = area[1] - lwidth
+  area[2] = area[2] - theight
+  area[3] = area[3] + ewidth
+  area[4] = area[4] + eheight
+  if not self.owner.area then return self.owner:computearea() end
+  area[1] = area[1] + self.owner.area[1]
+  area[2] = area[2] + self.owner.area[2]
+  area[3] = math.min(math.max(self.owner.area[3]-self.bounds[1], 0), 
+                     self.bounds[3]+ewidth)
+  area[4] = math.min(math.max(self.owner.area[4]-self.bounds[2], 0), 
+                     self.bounds[4]+eheight)
+  self.area = area
+  
+  -- Compute bounds for sub-widgets.
+  for i, v in ipairs(self.content) do
+    v:computearea()
+  end
+  return area
 end
 
 --- Override to calculate a default size for the widget, when its 
@@ -426,7 +511,19 @@ end
 -- set to <code>"auto"</code>.
 -- This method should be fast.
 function widget:size()
-  return 0, 0;
+  local size = {0, 0}
+  for i, v in ipairs(self.content) do
+    local cw, ch = v:size()
+    local ewidth = (v.style.styles.borderleftwidth or 0) + 
+                 (v.style.styles.borderrightwidth or 0)
+    local eheight = (v.style.styles.bordertopwidth or 0) + 
+                    (v.style.styles.borderbottomwidth or 0) 
+    size[1] = math.max(size[1], v.bounds[1] + v.bounds[3] + ewidth, 
+                       v.bounds[1] + cw + ewidth)
+    size[2] = math.max(size[2], v.bounds[2] + v.bounds[4] + eheight, 
+                       v.bounds[2] + ch + eheight)
+  end
+  return unpack(size);
 end
 
 --- Returns true if the bounds of the widget contains point x, y.
@@ -435,14 +532,30 @@ end
 function widget:contains(x, y)
   checktype("x", x, "number")
   checktype("y", y, "number")
-  local left, top, width, height = self:bounds()
-  return pointinrect({x, y}, {left, top, width, height})
+  if not self.bounds then
+    self:computebounds()
+  end
+  local left, top, width, height = unpack(self.bounds)
+  local aleft, atop, awidth, aheight = unpack(self.area)
+  return pointinrect({x, y}, {left, top, awidth, aheight})
 end
 
 --- Update the widget, and sub-widgets
 function widget:update(dt)
   for k, v in ipairs(self.content) do
     v:update(dt)
+  end
+  if self.owner then
+    local mx, my = love.mouse.getPosition()
+    local bx, by = unpack(self.bounds)
+    local wx, wy = unpack(self.area)
+    wx, wy = wx - bx, wy - by
+    if not self:match("ui.hover") and self:contains(mx-wx, my-wy) then
+      self:mouseenter(mx, my)
+    end
+    if self:match("ui.hover") and not self:contains(mx-wx, my-wy) then
+      self:mouseleave(mx, my)
+    end
   end
 end
 
@@ -455,37 +568,99 @@ function widget:focus(w)
     if self.focused then
       self.focused.actions.blur()
     end
+    if self.focused then
+      self.focused:remove("ui.focus")
+    end
     self.focused = w
     if self.focused then
+      self.focused:add("ui.focus")
       self.focused.actions.focus()
     end
   end
 end
 
---- Send mousepressed event to widget, and/or sub-widgets.
--- @param x The x coordinate.
--- @param y The y coordinate.
+function widget:enabled()
+  local this = self.style.styles
+  return this.display ~= "none"
+end
+
+--- Send mouseleave event to widget, and/or sub-widgets.
+-- @param x The x coordinate where mouse left.
+-- @param y The y coordinate where mouse left.
 -- @param button The mouse button pressed.
-function widget:mousepressed(x, y, button)
-  -- Accept left button clicks only.
-  if button ~= "l" then
-    return
+function widget:mouseleave(x, y)
+  if not self.bounds then
+    self:computebounds()
   end
-  local wx, wy, ww, wh = self:bounds()
+  local wx, wy, ww, wh = unpack(self.bounds)
   for i, w in ipairs(self.content) do
     -- Go through widgets from the latest added first.
     w = self.content[#self.content-i+1];
     local this = w.style.styles
     -- x - wx, y - wy are mouse coordinates relative to the `w`.
-    if this.display~="none" and w:contains(x - wx, y - wy) then
-      w:mousepressed(x - wx, y - wy, button)
-      -- Consider allow actions to refuse widger to blur??
-      self:focus(w)
-      return
+    if w:enabled() and w:contains(x - wx, y - wy) and w:match("ui.hover") and 
+       w:mouseleave(x - wx, y - wy) then
+      return true 
     end
   end
-  local r = {self.actions.mousedown(self, x, y, button)}
-  self:focus(self)
+  self:remove("ui.hover")
+  if self:match("ui.pressed") then
+    self:remove("ui.pressed")
+  end
+  self.actions.mouseenter(self, x, y)
+  return #self.actions.mouseenter > 0 or true
+end
+
+
+function widget:mouseenter(x, y)
+  if not self.bounds then
+    self:computebounds()
+  end
+  local wx, wy, ww, wh = unpack(self.bounds)
+  for i, w in ipairs(self.content) do
+    -- Go through widgets from the latest added first.
+    w = self.content[#self.content-i+1];
+    local this = w.style.styles
+    -- x - wx, y - wy are mouse coordinates relative to the `w`.
+    if w:enabled() and w:contains(x - wx, y - wy) and 
+      w:mouseenter(x - wx, y - wy) then
+      return true 
+    end
+  end
+  self:add("ui.hover")
+  self.actions.mouseenter(self, x, y)
+  return #self.actions.mouseenter > 0 or true
+end
+--- Send mousepressed event to widget, and/or sub-widgets.
+-- @param x The x coordinate.
+-- @param y The y coordinate.
+-- @param button The mouse button pressed.
+function widget:mousepressed(x, y, button)
+  if not self.bounds then
+    self:computebounds()
+  end
+  
+  local wx, wy, ww, wh = unpack(self.bounds)
+  if self.owner then 
+    self.owner:focus(self)
+  else 
+    self:focus(self) 
+  end
+  for i, w in ipairs(self.content) do
+    -- Go through widgets from the latest added first.
+    w = self.content[#self.content-i+1];
+    local this = w.style.styles
+    -- x - wx, y - wy are mouse coordinates relative to the `w`.
+    if w:enabled() and w:contains(x - wx, y - wy) and 
+       w:mousepressed(x - wx, y - wy, button) then
+      return true 
+    end
+  end
+  self:add("ui.pressed")
+  self.actions.mousedown(self, x - wx, y - wy, button)
+  return #self.actions.mousedown > 0 or 
+         #self.actions.focus > 0 or
+         #self.actions.click > 0
 end
 
 --- Send mousereleased event to the focused widget.
@@ -495,54 +670,139 @@ end
 -- @param y The y coordinate.
 -- @param button The mouse button released.
 function widget:mousereleased(x, y, button)
-  if button ~= "l" then
-    return false
-  end
-  local wx, wy, ww, wh = self:bounds()
-  if self.focused ~= nil then
-    if self.focused:contains(x - wx, y - wy) then
-      self.focused.actions.click(self.focused, x, y, button)
+  if not self.bounds then self:computebounds() end
+  local wx, wy, ww, wh = unpack(self.bounds)
+  if self.focused ~= nil and self.focused ~= self then
+    if self.focused:enabled() and self.focused:contains(x - wx, y - wy) and
+        self.focused:mousereleased(x - wx, y - wy, button)  then
+       return true
     end
+  end
+  if self:match("ui.pressed") then
+    self:remove("ui.pressed")
+    self.actions.click(self, x-wx, y-wy, button)
+    return #self.actions.click > 0
   end
 end
 
-
 function widget:keypressed(key, unicode)
-  -- TODO
+  if self.focused ~= self and self.focused then
+    self.focused:keypressed(key, unicode)
+  end
+  self.actions.keydown(self, key, unicode)
 end
 
 function widget:keyreleased(key, unicode)
-  -- TODO
+  if key == "tab" then
+    if not self.focused then
+      self:focus(self.content[1])
+    else
+      for i, v in ipairs(self.content) do
+        if self.focused == v then
+          self:focus(self.content[i+1])
+          break
+        end
+      end
+    end
+  else
+    if self.focused ~= self and self.focused then
+      self.focused:keyreleased(key, unicode)
+    end
+    self.actions.keyup(self, key, unicode)
+  end
+  
 end
 
 --- Draws the widget and any sub-widget within the widget.
 function widget:draw()
   -- Get current style
+  
   if self.style == nil then
-    self.style = self:compute()
+    self.style = self:computestyle()
   end
+  if not self.bounds then
+    self:computebounds()
+  end
+  if not self.area then
+    self:computearea()
+  end
+  
+  font(self.style.styles.font)
   
   -- Calculate the widget's bounds.
-  local bounds = {self:bounds()}
-  local left, top = bounds[1], bounds[2]
-  
-  if self.owner then
-    
-    -- Draw background
-    self:drawbackground(self.style, unpack(bounds))
-    
-    -- Draw border
-    self:drawborder(self.style, unpack(bounds))
-    
-    -- Draw content
-    self:drawcontent(self.style, unpack(bounds))
-  end
-  -- Draw sub-widgets
+  local bounds = self.bounds
+  local left, top, width, height = unpack(bounds)
   push()
   translate(left, top)
+  local st = self.style
+  if self.owner then
+    scissor(unpack(self.area))
+    -- Draw background
+    self:drawbackground(st)
+    -- Draw content
+    self:drawcontent(st)
+  end
+  
+  -- Draw sub-widgets
+  push()
   for i, v in ipairs(self.content) do
     v:draw()
   end
+  pop()
+  
+  -- Draw border
+  if self.owner then
+    self:drawborder(st)
+  end
+  pop()
+end
+
+-- Draw a border part
+-- width1 width of border
+-- width2 width of adjacent border
+-- radius border radius of corner between this border and adjacent
+-- height half height of widget
+local function borderpart(width1, width2, radius, height)
+  local outerleft, outertop = 0, 0
+  local innerleft, innertop = width1, width2
+  local lmidtop = math.min(outertop + radius, innertop + height)
+  local tmidleft = math.min(outerleft + radius, width1)
+  -- side
+  polygon("fill",
+    outerleft, lmidtop,
+    tmidleft, lmidtop,
+    innerleft, math.max(innertop, lmidtop),
+    innerleft, innertop + height,
+    outerleft, innertop + height)
+  -- corner
+  if radius > 0 then
+    local dx, dy = innerleft - tmidleft, 
+      math.max(innertop - lmidtop, 0)
+    local length = math.atan2(dy, dx)-0.001
+    if dx == 0 or dy == 0 then 
+      length = math.pi/4 
+    end
+    arc("fill",
+      radius+1, radius+1, 
+      math.pi, radius+1, 
+      math.min(width1, radius+1), 
+      length+0.01)
+  end
+end
+-- Draws a border
+-- wid width of border
+-- awid1 first adjacent width
+-- rad1 first radius
+-- awid2 second adjacent width
+-- rad2 second radius
+-- height height of widget
+local function border(wid, awid1, rad1, awid2, rad2, height)
+  borderpart(wid, awid1, rad1, height/2)
+  push()
+  translate(0, height + awid1 + awid2)
+  rotate(math.pi)
+  scale( -1, 1 )
+  borderpart(wid, awid2, rad2, height/2)
   pop()
 end
 
@@ -551,68 +811,22 @@ end
 -- @param bounds The bounding rectangle of the widget.
 -- The border will reside on the outside of bounds.
 -- @param st The computed style to follow.
-function widget:drawborder(st, left, top, width, height)
+function widget:drawborder(st)
 -- TODO Take into account the following style attributes
 --  borderimagesource = "none", -- "none" or a file path
 --  borderimagerepeat = "repeat", -- stretch|repeat|round
 --  bordercornerimage = "none" -- "none" or a file path
 
+  local left, top, width, height = unpack(self.bounds)
   local this = st.styles
-  local right, bottom = left + width, top + height
+  local right, bottom = width, height
     
-  -- Draw a border part
-  -- width1 width of border
-  -- width2 width of adjacent border
-  -- radius border radius of corner between this border and adjacent
-  -- height half height of widget
-  local function borderpart(width1, width2, radius, height)
-    local outerleft, outertop = 0, 0
-    local innerleft, innertop = width1, width2
-    local lmidtop = math.min(outertop + radius, innertop + height)
-    local tmidleft = math.min(outerleft + radius, width1)
-    -- side
-    polygon("fill",
-      outerleft, lmidtop,
-      tmidleft, lmidtop,
-      innerleft, math.max(innertop, lmidtop),
-      innerleft, innertop + height,
-      outerleft, innertop + height)
-    -- corner
-    if radius > 0 then
-      local dx, dy = innerleft - tmidleft, 
-        math.max(innertop - lmidtop, 0)
-      local length = math.atan2(dy, dx)-0.001
-      if dx == 0 or dy == 0 then 
-        length = math.pi/4 
-      end
-      arc("fill",
-        radius, radius, 
-        math.pi, radius, 
-        math.min(width1, radius), 
-        length)
-    end
-  end
-  -- Draws a border
-  -- wid width of border
-  -- awid1 first adjacent width
-  -- rad1 first radius
-  -- awid2 second adjacent width
-  -- rad2 second radius
-  -- height height of widget
-  local function border(wid, awid1, rad1, awid2, rad2, height)
-    borderpart(wid, awid1, rad1, height/2)
-    push()
-    translate(0, height + awid1 + awid2)
-    rotate(math.pi)
-    scale( -1, 1 )
-    borderpart(wid, awid2, rad2, height/2)
-    pop()
-  end
+  
   if this.borderleftwidth > 0  then
     color(unpack(this.borderleftcolor))
     push()
-    translate(left - this.borderleftwidth, 
-      top - this.bordertopwidth)
+    translate(0 - this.borderleftwidth, 
+      0 - this.bordertopwidth)
     border(this.borderleftwidth,
       this.bordertopwidth, this.bordertopleftradius, 
       this.borderbottomwidth, this.borderbottomleftradius, 
@@ -622,8 +836,8 @@ function widget:drawborder(st, left, top, width, height)
   if this.bordertopwidth > 0 then
     color(unpack(this.bordertopcolor))
     push()
-    translate(left + this.borderrightwidth + width, 
-      top - this.bordertopwidth)
+    translate(0 + this.borderrightwidth + width, 
+      0 - this.bordertopwidth)
     rotate(math.pi/2)
     border(this.bordertopwidth,
       this.borderrightwidth, this.bordertoprightradius, 
@@ -648,7 +862,7 @@ function widget:drawborder(st, left, top, width, height)
     color(unpack(this.borderrightcolor))
     push()
     translate(right + this.borderrightwidth, 
-      top - this.bordertopwidth)
+      0 - this.bordertopwidth)
     scale(-1, 1)
     border(this.borderrightwidth,
       this.bordertopwidth, this.bordertopleftradius, 
@@ -663,16 +877,70 @@ end
 -- @param bounds The bounding rectangle of the widget.
 -- The background will lie on or within the bounds
 -- @param st The computed style to follow.
-function widget:drawbackground(st, left, top, width, height)
+function widget:drawbackground(st)
   local this = st.styles
+  local left, top, width, height = unpack(self.bounds)
+  local right, bottom = width, height
   color(this.backgroundcolor)
   -- draw corner, then use polygon.
+  local leftradius = math.max(this.bordertopleftradius, 
+                              this.borderbottomleftradius)
+  local rightradius = math.max(this.bordertoprightradius, 
+                               this.borderbottomrightradius)
+  local topradius = math.max(this.bordertopleftradius, 
+                             this.bordertoprightradius)
+  local bottomradius = math.max(this.borderbottomleftradius, 
+                                this.borderbottomrightradius)
+  local leftrw = math.max(leftradius - this.borderleftwidth, 0)
+  local rightrw = math.max(rightradius - this.borderrightwidth, 0)
+  local toprw = math.max(topradius - this.bordertopwidth, 0)
+  local bottomrw = math.max(bottomradius - this.borderbottomwidth, 0)
+  rectangle("fill", 0+leftrw, 
+                    0+toprw, 
+                    width-(leftrw+rightrw), 
+                    height-(toprw+bottomrw))
   
-  rectangle("fill", 
-    left - this.borderleftwidth, 
-    top - this.bordertopwidth, 
-    width + this.borderleftwidth + this.borderrightwidth, 
-    height + this.bordertopwidth + this.borderbottomwidth)
+ 
+  if this.borderleftwidth > 0  then
+  push()
+  translate(0 - this.borderleftwidth, 0 - this.bordertopwidth)
+  border(leftrw + this.borderleftwidth,
+    toprw, this.bordertopleftradius-0.5, 
+    bottomrw, this.borderbottomleftradius-0.5, 
+    height + this.bordertopwidth + this.borderbottomwidth - (toprw+bottomrw))
+  pop()
+  end
+  if this.bordertopwidth > 0  then
+  push()
+  translate(0 + this.borderrightwidth + width, 0 - this.bordertopwidth)
+  rotate(math.pi/2)
+  border(leftrw + this.bordertopwidth,
+    rightrw, this.bordertoprightradius-0.5, 
+    leftrw, this.bordertopleftradius-0.5, 
+    width + this.borderleftwidth + this.borderrightwidth-(leftrw+rightrw))
+  pop()
+  end
+  if this.borderbottomwidth > 0  then
+  push()
+  translate(right + this.borderrightwidth, bottom + this.borderbottomwidth)
+  rotate(math.pi/2)
+  scale(-1, 1)
+  border(bottomrw + this.borderbottomwidth,
+    rightrw, this.borderbottomrightradius-0.5, 
+    leftrw, this.borderbottomleftradius-0.5, 
+    width + this.borderleftwidth + this.borderrightwidth-(leftrw+rightrw))
+  pop()
+  end
+  if this.borderrightwidth > 0  then
+  push()
+  translate(right + this.borderrightwidth, 0 - this.bordertopwidth)
+  scale(-1, 1)
+  border(rightrw + this.borderrightwidth,
+    toprw, this.bordertopleftradius-0.5, 
+    bottomrw, this.borderbottomleftradius-0.5, 
+    height + this.bordertopwidth + this.borderbottomwidth - (toprw+bottomrw))
+  pop()
+  end
 end
 
 --- Override to draw the content of the widget.
@@ -680,7 +948,7 @@ end
 -- @param bounds The bounding rectangle of the widget.
 -- The background will lie on or within the bounds
 -- @param st The computed style to follow.
-function widget:drawcontent(st, left, top, width, height)
+function widget:drawcontent(st, width, height)
   
 end
 
@@ -712,7 +980,7 @@ test("ui.widget", function()
     assert(child.style.styles.display == "inline",
       [[child.style.styles.display == "inline"]])
     
-    local bounds = {child:bounds()}
+    local bounds = child:computebounds()
     -- Check left and top are both 10.
     assert(bounds[1] == 10 and bounds[2] == 10, 
       [[bounds[1] == 10 and bounds[2] == 10]])
@@ -724,7 +992,7 @@ test("ui.widget", function()
     
     assert(parent:owns(style) == false, [[parent:owns(style) == false]])
     
-    bounds = {child:bounds()}
+    bounds = child:computebounds()
     -- Check left and top are both 0
     assert(bounds[1] == 0 and bounds[2] == 0, 
       [[bounds[1] == 0 and bounds[2] == 0]])

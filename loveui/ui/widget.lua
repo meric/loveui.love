@@ -694,7 +694,7 @@ end
 
 function widget:keyreleased(key, unicode)
   if key == "tab" then
-    if not self.focused then
+    if not self.focused or self.focused == self then
       self:focus(self.content[1])
     else
       for i, v in ipairs(self.content) do

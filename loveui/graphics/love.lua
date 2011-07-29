@@ -15,6 +15,7 @@ draw = love.graphics.draw
 framebuffer = love.graphics.newFramebuffer
 rendertarget = love.graphics.setRenderTarget
 scissor = love.graphics.setScissor
+getscissor = love.graphics.getScissor
 newfont = love.graphics.newFont
 text = love.graphics.print
 time = love.timer.getTime
@@ -22,7 +23,6 @@ keyheld = love.keyboard.isDown
 mouseheld = love.mouse.isDown
 mousex = love.mouse.getX
 mousey = love.mouse.getY
-
 
 function font(...)
   if ... then 

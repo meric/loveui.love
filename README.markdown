@@ -28,7 +28,7 @@ A widget is tagged by multiple strings. loveui widgets are tagged with their own
 Every style has a "selector" - A string of tags separated by whitespace. The style will apply to widgets that contain all of the tags in side the "selector".
 
 To add a style:
-    widget:1add(style1)
+    widget1:add(style1)
 
 To remove,
     widget1:remove(widget2)

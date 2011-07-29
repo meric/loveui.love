@@ -121,6 +121,15 @@ function context:update(dt)
   context.__super.update(self, dt)
 end
 
+function context:draw()
+  local l, t, w, h = getscissor()
+  context.__super.draw(self)
+  if l then
+    scissor(l, t, w, h)
+  else
+    scissor()
+  end
+end
 
 test("ui.context.mousepressed", function()
     local c = context()

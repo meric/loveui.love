@@ -122,13 +122,9 @@ function context:update(dt)
 end
 
 function context:draw()
-  local l, t, w, h = getscissor()
+  local t = stash()
   context.__super.draw(self)
-  if l then
-    scissor(l, t, w, h)
-  else
-    scissor()
-  end
+  unstash(t)
 end
 
 test("ui.context.mousepressed", function()

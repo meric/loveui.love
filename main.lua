@@ -4,7 +4,7 @@ local context = ui.context()
 function love.load()
   love.graphics.setBackgroundColor{255,255,255}
   success = love.graphics.setMode( 800, 600, false, false, 0 )
-  local st_b1, button_b1, st_t1, textfield_t1 = 
+  st_b1, button_b1, st_t1, textfield_t1 = 
   context:add(
     ui.style("b1", {left=10,top=10,color={0,0,255}}),
     ui.button("b1", {value = "Menu"})
@@ -20,7 +20,6 @@ end
 
 function love.update(dt)
   context:update(dt)
-  --print(love.timer.getFPS())
 end
 
 function love.draw()

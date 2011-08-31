@@ -24,6 +24,27 @@ mouseheld = love.mouse.isDown
 mousex = love.mouse.getX
 mousey = love.mouse.getY
 
+-- Stash current graphics settings into a table
+-- @return Returns the settings in a table, to be <code>unstash</code>ed later
+function stash()
+  -- TODO Stash other settings
+  local stashed = {}
+  local l, t, w, h = getscissor()
+  stashed.scissor = l and {l, t, w, h} or nil
+  return stashed
+end
+
+-- Restore previously stashed graphics settings
+-- @param t Table returned by a previous <code>stash()</code> call.
+function unstash(t)
+  -- TODO Unstash other settings
+  if t.scissor then
+    scissor(unpack(t.scissor))
+  else
+    scissor()
+  end
+end
+
 function font(...)
   if ... then 
     if ... ~= love.graphics.getFont() then

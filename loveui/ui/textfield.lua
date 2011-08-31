@@ -170,8 +170,6 @@ function textfield:textlocation(x)
 	return 0
 end
 
-
-
 function textfield:update(dt)
   textfield.__super.update(self, dt)
   if math.floor(time()*2) % 2 == 0 then

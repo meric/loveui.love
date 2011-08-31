@@ -631,6 +631,7 @@ function widget:mouseenter(x, y)
   self.actions.mouseenter(self, x, y)
   return #self.actions.mouseenter > 0 or true
 end
+
 --- Send mousepressed event to widget, and/or sub-widgets.
 -- @param x The x coordinate.
 -- @param y The y coordinate.

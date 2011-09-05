@@ -30,6 +30,7 @@ function stash()
   -- TODO Stash other settings
   local stashed = {}
   local l, t, w, h = getscissor()
+  stashed.color = {color()}
   stashed.scissor = l and {l, t, w, h} or nil
   return stashed
 end
@@ -43,6 +44,7 @@ function unstash(t)
   else
     scissor()
   end
+  color(unpack(t.color))
 end
 
 function font(...)

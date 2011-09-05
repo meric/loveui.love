@@ -103,7 +103,12 @@ function widget:removestyle(st)
   if not self:owns(st) then
     error("A widget cannot remove a style it does not own.")
   end
-  self.styles[st.tags] = nil
+  for i, v in ipairs(self.styles) do
+    if v == st then
+      self.styles[i] = nil
+      break
+    end
+  end
   st.owner = nil
   return st
 end

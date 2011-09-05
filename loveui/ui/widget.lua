@@ -23,6 +23,14 @@ function widget:init(tags, args)
   checktype("tags", tags, "number", "string", "nil")
   checktype("args", args, "table", "nil")
   
+  -- Attributes
+  self.attributes = {}
+  
+  -- Copy args to attributes
+  for k, v in pairs(args or {}) do
+    self.attributes[k] = v
+  end
+  
   -- Tags that identify this widget.
   self.tags = sorttags(tags)
   
@@ -48,14 +56,6 @@ function widget:init(tags, args)
     keyup = chain(), 
     keydown = chain()
   }
-  
-  -- Attributes
-  self.attributes = {}
-  
-  -- Copy args to attributes
-  for k, v in pairs(args or {}) do
-    self.attributes[k] = v
-  end
   
   -- Parent widget.
   self.owner = nil
@@ -90,8 +90,9 @@ function widget:addstyle(st)
     st.owner:removestyle(st)
   end
   
-  -- Possibly replace old style.
-  self.styles[st.tags] = st
+  -- self.styles[st.tags] = st -- Replace old style.
+  -- later styles have precedence
+  table.insert(self.styles, st)
   st.owner = self
   return st
 end
@@ -179,17 +180,13 @@ function widget:add(...)
     end
   end
   -- Compute current style for the sub-widgets
-  self:computestyle()
-  -- Compute current relative bounds for the sub-widgets
-  self:computebounds()
-  -- Compute current absolute area for the sub-widgets
-  self:computearea()
-  
   if self.owner then
     self.owner:computestyle()
     self.owner:computebounds()
     self.owner:computearea()
   end
+  self:computestyle()
+  self:computearea()
   return ...
 end
 
@@ -268,14 +265,26 @@ function widget:apply(attrs)
   end
 end
 
+local function numberof(str, s)
+  local n = 0
+  for w in str:gmatch(s) do
+    n = n + 1
+  end
+  return n
+end
+
 --- Compute the current style for a widget, and all sub-widgets.
 -- This function is expensive, do not call every frame.
 -- @return The current style
 function widget:computestyle()
-  local owner = self.owner
+  -- Compute style for sub-widgets to get bounds.
+  for i, v in ipairs(self.content) do
+    v:computestyle()
+  end
   local styles ={}
+  local owner = self.owner
   while owner do
-    for i, v in pairs(owner.styles) do
+    for i, v in ipairs(owner.styles) do
       if self:match(v.tags) then
         for k, w in pairs(v.styles) do
           styles[k] = w
@@ -288,6 +297,9 @@ function widget:computestyle()
   local this = self.style.styles
   self:computebounds()
   local left, top, width, height = unpack(self.bounds)
+  this.width = width
+  this.height = height
+  
   local function constrain(name, val)
     if this[name] then
       this[name] = math.min(val, this[name])
@@ -312,7 +324,7 @@ function widget:computestyle()
   this.bordertoprightradius = this.bordertoprightradius or 0
   this.borderbottomleftradius = this.borderbottomleftradius or 0
   this.borderbottomrightradius = this.borderbottomrightradius or 0
-  -- Compute style for sub-widgets.
+  -- Compute style for sub-widgets to update with this widget's style.
   for i, v in ipairs(self.content) do
     v:computestyle()
   end
@@ -422,6 +434,10 @@ end
 -- This method should be fast.
 function widget:computebounds()
   local this = self.style.styles;
+  
+  if font() == nil then
+    font(self.style.styles.font)
+  end
   
   local width, height = this.width or "auto", this.height or "auto";
   
@@ -581,7 +597,7 @@ end
 
 function widget:enabled()
   local this = self.style.styles
-  return this.display ~= "none"
+  return this.display ~= "none" and self.attributes.disabled ~= true
 end
 
 --- Send mouseleave event to widget, and/or sub-widgets.
@@ -628,7 +644,9 @@ function widget:mouseenter(x, y)
     end
   end
   self:add("ui.hover")
-  self.actions.mouseenter(self, x, y)
+  if self:enabled() then
+    self.actions.mouseenter(self, x, y)
+  end
   return #self.actions.mouseenter > 0 or true
 end
 
@@ -658,7 +676,9 @@ function widget:mousepressed(x, y, button)
     end
   end
   self:add("ui.pressed")
-  self.actions.mousedown(self, x - wx, y - wy, button)
+  if self:enabled() then
+    self.actions.mousedown(self, x - wx, y - wy, button)
+  end
   return #self.actions.mousedown > 0 or 
          #self.actions.focus > 0 or
          #self.actions.click > 0
@@ -681,7 +701,9 @@ function widget:mousereleased(x, y, button)
   end
   if self:match("ui.pressed") then
     self:remove("ui.pressed")
-    self.actions.click(self, x-wx, y-wy, button)
+    if self:enabled() then
+      self.actions.click(self, x-wx, y-wy, button)
+    end
     return #self.actions.click > 0
   end
 end
@@ -690,7 +712,9 @@ function widget:keypressed(key, unicode)
   if self.focused ~= self and self.focused then
     self.focused:keypressed(key, unicode)
   end
-  self.actions.keydown(self, key, unicode)
+  if self:enabled() then
+    self.actions.keydown(self, key, unicode)
+  end
 end
 
 function widget:keyreleased(key, unicode)
@@ -709,7 +733,9 @@ function widget:keyreleased(key, unicode)
     if self.focused ~= self and self.focused then
       self.focused:keyreleased(key, unicode)
     end
-    self.actions.keyup(self, key, unicode)
+    if self:enabled() then
+      self.actions.keyup(self, key, unicode)
+    end
   end
   
 end

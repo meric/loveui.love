@@ -55,6 +55,16 @@ function font(...)
   end
 end
 
+function textheight()
+  local current = font()
+  return current and current:getHeight() or 0
+end
+
+function textwidth(t)
+  local current = font()
+  return current and current:getWidth(t) or 0
+end
+
 function point(x, y)
   rectangle("fill", x, y, 1, 1)
 end

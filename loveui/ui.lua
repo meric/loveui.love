@@ -13,6 +13,8 @@ require "loveui/ui/style"
 require "loveui/ui/widget"
 require "loveui/ui/context"
 require "loveui/ui/button"
+require "loveui/ui/checkbox"
+require "loveui/ui/label"
 require "loveui/ui/textfield"
 
 return ui

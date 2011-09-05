@@ -26,10 +26,20 @@ function button:init(tags, args)
   local label = self.attributes.value;
 end
 
+-- Default size
+function button:size()
+  local value = tostring(self.attributes.value)
+  return textwidth(value) + 10, textheight() + 4
+end
+
+
 function button:drawcontent()
   color(self.style.styles.color)
   assert(self.attributes.value, "button requires `value` attribute set.")
-  text(self.attributes.value, 11, 11)
+  local this = self.style.styles
+  local value = self.attributes.value
+  text(self.attributes.value, this.width/2- textwidth(value)/2, 
+                              this.height/2- textheight()/2)
 end
 
 test("ui.button", function()

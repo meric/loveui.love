@@ -67,8 +67,6 @@ local defaultbutton = ui.style("ui.button", {
   backgroundcolor=_eee,
   borderradius=0,
   borderwidth=1,
-  width=130,
-  height=35,
 })
 local defaultbuttonhover = ui.style("ui.button ui.hover", {
   --backgroundcolor={187,187,187,255},
@@ -83,8 +81,6 @@ local defaulttextfield = ui.style("ui.textfield", {
   backgroundcolor=_fff,
   --borderradius=3,
   borderwidth=1,
-  width=130,
-  height=35,
 })
 local defaulttextfieldhover = ui.style("ui.textfield ui.hover", {
   --backgroundcolor={187,187,187,255},
@@ -95,6 +91,21 @@ local defaulttextfieldfocus = ui.style("ui.textfield ui.focus", {
   bordercolor=_555,
   borderwidth=1
 })
+
+local defaultcheckbox= ui.style("ui.checkbox", {
+  bordercolor=_555,
+  backgroundcolor=_fff,
+  color=_555,
+  borderwidth=1,
+})
+
+local defaultlabel= ui.style("ui.label", {
+  bordercolor=_000,
+  backgroundcolor=_fff,
+  color=_000,
+  borderwidth=0,
+})
+
 context = class(widget)
 
 --- Initiates a context instance.
@@ -114,7 +125,9 @@ function context:init(tags, args)
           defaultbuttonpressed,
           defaulttextfield,
           defaulttextfieldhover,
-          defaulttextfieldfocus)
+          defaulttextfieldfocus,
+          defaultcheckbox,
+          defaultlabel)
 end
 
 function context:update(dt)

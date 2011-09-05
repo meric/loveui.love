@@ -189,6 +189,12 @@ function textfield:update(dt)
 	end
 end
 
+-- Default size
+function textfield:size()
+  local value = tostring(self.attributes.value)
+  return 100, textheight() + 4
+end
+
 function textfield:drawcontent()
   local height = self.style.styles.height
   -- Text
